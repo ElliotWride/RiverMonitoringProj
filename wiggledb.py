@@ -1,10 +1,10 @@
 from tinydb import TinyDB, Query
 
 # Create a database instance
-db = TinyDB('data.json')
+river_water_quality = TinyDB('river_water_quality.json')
 
 # Define the table schema
-table = db.table('readings')
+table = river_water_quality.table('readings')
 
 # Function to insert data into the database
 def insert_data(id, time, ph, ec, validated):
@@ -39,19 +39,22 @@ def delete_data_by_id(id):
 
 #data correction
 def updateData():
+    def updateData():
     new_lab_data = False        
     d = getLatestLabData()
-    
-    ids = [j['ID'] for j in table]
+    d = [1,"14:10",7.999,2.8]  # sample
+    ids = [j['ID'] for j in table.all()]
     start = ids.index(d[0])  # find correct ID
-    while table[start]['VALIDATED'] != 0:
+    while table.get(Query().ID == ids[start])['VALIDATED'] != 0:
         start += 1
 
     length = len(ids)       
-    deltaB = table[length]['EC'] - d[3]
+    deltaPH = table.get(Query().ID == ids[length - 1])['PH'] - d[2]
+    deltaEC = table.get(Query().ID == ids[length - 1])['EC'] - d[3]
 
     for i in range(start, length):
-        table.update({'EC': table[i]['EC'] + deltaB * (i / length)}, Query().ID == ids[i])
+        table.update({'PH': table.get(Query().ID == ids[i])['PH'] + deltaPH * (i / length)}, Query().ID == ids[i])
+        table.update({'EC': table.get(Query().ID == ids[i])['EC'] + deltaEC * (i / length)}, Query().ID == ids[i])
 
 def checkForNewLabData():
     # Implementation to check for new lab data
