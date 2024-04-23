@@ -1,4 +1,11 @@
 from tinydb import TinyDB, Query
+import time
+import sys
+
+#global vars
+oldSMS = ""
+oldLabData = ""
+
 
 # Create a database instance
 river_water_quality = TinyDB('river_water_quality.json')
@@ -38,8 +45,7 @@ def delete_data_by_id(id):
 
 
 #data correction
-def updateData():
-    def updateData():
+def updateData():   
     new_lab_data = False        
     d = getLatestLabData()
     d = [1,"14:10",7.999,2.8]  # sample
@@ -64,12 +70,29 @@ def getLatestLabData():
     # Implementation to get the latest lab data
     pass
 
+def new_cell_data():
+    if (oldSMS != sys.stdin.read(1024)):
+        oldSMS = sys.stdin.read(1024)
+        return True
+
+def new_lab_data():
+    if (oldLabData != "input"):
+        oldSMS = "input"
+        return True
+
+
+    
 # Main program logic
+
+
 new_lab_data = False
 
-while True:
-    if new_lab_data:
-        updateData()
-    else:
-        if checkForNewLabData():
-            new_lab_data = True
+if __name__ == "__main__":
+    while True:
+        if new_cell_data():
+            new_data = sys.stdin.read(1024)
+            insert_data(new_data)
+        if new_lab_data():
+            
+            updateData(new_lab_data)
+
