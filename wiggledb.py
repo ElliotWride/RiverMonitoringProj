@@ -1,16 +1,17 @@
 from tinydb import TinyDB, Query
 import time
 import sys
+import threading
+import shutil
+import os
 
-#global vars
+# Global variables
 oldSMS = ""
 oldLabData = ""
-
+lock = threading.Lock()
 
 # Create a database instance
 river_water_quality = TinyDB('river_water_quality.json')
-
-# Define the table schema
 table = river_water_quality.table('readings')
 
 # Function to insert data into the database
@@ -43,6 +44,14 @@ def update_data_by_id(id, time=None, ph=None, ec=None, validated=None):
 def delete_data_by_id(id):
     table.remove(Query().ID == id)
 
+# Function to backup the database
+def backup_database():
+    while True:
+        time.sleep(3600)  # Backup every hour
+        try:
+            shutil.copyfile('river_water_quality.json', 'backup/river_water_quality_backup.json')
+        except Exception as e:
+            print(f"Error occurred during backup: {e}")
 
 #data correction
 def updateData():   
@@ -71,28 +80,26 @@ def getLatestLabData():
     pass
 
 def new_cell_data():
+    global oldSMS
     if (oldSMS != sys.stdin.read(1024)):
         oldSMS = sys.stdin.read(1024)
         return True
 
 def new_lab_data():
+    global oldLabData
     if (oldLabData != "input"):
         oldSMS = "input"
         return True
 
-
-    
 # Main program logic
-
-
-new_lab_data = False
-
 if __name__ == "__main__":
+    backup_thread = threading.Thread(target=backup_database)
+    backup_thread.daemon = True
+    backup_thread.start()
+
     while True:
         if new_cell_data():
             new_data = sys.stdin.read(1024)
             insert_data(new_data)
         if new_lab_data():
-            
             updateData(new_lab_data)
-
