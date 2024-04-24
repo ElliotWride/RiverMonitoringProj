@@ -91,11 +91,32 @@ def new_lab_data():
         oldSMS = "input"
         return True
 
+def update_github_file():
+    github_token = "" #TOKEN DO NOT REVEAL
+    repo_name = "RiverMonitoringProj"
+    file_name = "river_water_quality.json"
+    file_content = open("river_water_quality.json").read()
+
+    g = Github(github_token)
+    repo = g.get_repo(repo_name)
+    file = repo.get_contents(file_name)
+    
+    repo.update_file(file.path, "Updated data", file_content, file.sha)
+
+def update_github_thread():
+    while True:
+        update_github_file()
+        time.sleep(12 * 60 * 60)  # Sleep for 12 hours dont tell me this is inefficient idc
+
 # Main program logic
 if __name__ == "__main__":
     backup_thread = threading.Thread(target=backup_database)
     backup_thread.daemon = True
     backup_thread.start()
+
+    github_thread = threading.Thread(target=update_github_thread)
+    github_thread.daemon = True
+    github_thread.start()
 
     while True:
         if new_cell_data():
