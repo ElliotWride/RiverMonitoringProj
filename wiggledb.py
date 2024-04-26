@@ -4,6 +4,7 @@ import sys
 import threading
 import shutil
 import os
+from github import Github
 
 # Global variables
 oldSMS = ""
@@ -57,7 +58,6 @@ def backup_database():
 def updateData():   
     new_lab_data = False        
     d = getLatestLabData()
-    d = [1,"14:10",7.999,2.8]  # sample
     ids = [j['ID'] for j in table.all()]
     start = ids.index(d[0])  # find correct ID
     while table.get(Query().ID == ids[start])['VALIDATED'] != 0:

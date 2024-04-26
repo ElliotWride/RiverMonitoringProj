@@ -1,6 +1,6 @@
 import os
 
 try:
-    os.system('python /RiverMonitoringProject/wiggledb.py | /RiverMonitoringProject sms_thread')
+    os.system('python wiggledb.py | sms_thread')
 except:
     print("fail")
